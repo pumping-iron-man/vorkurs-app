@@ -1,0 +1,18 @@
+#startTitle {
+  font-size: 50px;
+  font-weight: 400;
+}
+  
+#startSubtitle {
+  font-size: 34px;
+  text-align: center;
+}
+
+#startBtn {
+  color: white;
+  background-color: #48B0F5;
+}
+
+/*button:hover {
+  opacity: 1;
+}*/
