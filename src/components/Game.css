@@ -39,11 +39,10 @@
 
 .footerDiv {
     grid-row: 11 / -1;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-content: center;
     align-items: center;
-    justify-content: space-between;
-    width: 100%;
 }
 
 .navBtn {
@@ -57,8 +56,17 @@
     opacity: .5;
 }
 
+.navBtn:first-child {
+    justify-self: left;
+}
+
+.navBtn:last-child {
+    justify-self: right;
+}
+
 #questionNumber {
     font-size: 25px;
+    grid-column: 2/3;
 }
 
 .io-icon {
@@ -66,4 +74,10 @@
     height: 50px;
     width: 50px;
     padding: 0;
+}
+
+#submitBtn {
+    background-color: #05eb8d;
+    padding: 10px 15px;
+    color: white;
 }

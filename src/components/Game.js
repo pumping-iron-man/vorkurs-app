@@ -16,8 +16,8 @@ class GameView extends Component {
             question : '',
             answerOptions : [],
             disabledPrev: false,
-            disabledNext: false,
             userAnswers : [],
+            showSubmit : false
         }
     }
 
@@ -29,11 +29,21 @@ class GameView extends Component {
         }, () => this.setQuestionAndAnswers())
     }
 
-    // if forward button navigates to a page > 10, then the forward button gets disabled
+    // if forward button navigates to a page > 10, then the submit button is shown
     // if backward button navigates to a page < 1, then the backward button gets disabled
+    // else forward and backward button are shown and submit button is not shown
     componentDidUpdate = () => {
-        const { pageNumber, disabledPrev, disabledNext } = this.state
-                
+        const { pageNumber, disabledPrev, showSubmit } = this.state
+        
+        // !disabledPrev and !showSubmit are needed otherwise is called again and again and 
+        // finishes with a maximum update depth - error
+
+        /** WHY: 
+         *  setState calls a rerender, this will call the componentDidUpdate function, 
+         *  this will go to the first if-clause, will see that the pageNumber is truly 1 and a 
+         *  new setState call will start. with !disabledPrev and !showSubmit will be setted to 
+         *  true, and for the next calls it will prevent the error from happening
+         */
         if(pageNumber === 1 && !disabledPrev) {
             this.setState({
                 disabledPrev : true
@@ -41,17 +51,19 @@ class GameView extends Component {
             return
         }
 
-        if(pageNumber === 10 && !disabledNext) {
+        if(pageNumber === 10 && !showSubmit) {
             this.setState({
-                disabledNext : true
+                showSubmit: true
             })
             return
         }
 
-        if((pageNumber > 1 && pageNumber < 10) && (disabledPrev || disabledNext)) {
+        // same logic gets applied here with the only difference that disabledPrev and
+        // showSubmit are setted to false
+        if((pageNumber > 1 && pageNumber < 10) && (disabledPrev || showSubmit)) {
             this.setState({
                 disabledPrev : false,
-                disabledNext : false
+                showSubmit: false
             })
         }
     }
@@ -93,7 +105,13 @@ class GameView extends Component {
 
     // the selected answer button is saved in a state variable
     onSelectedAnswer = (selectedAnswer) => {
-        const indexAnsweredOption = this.state.pageNumber - 1 
+        const { pageNumber, userAnswers } = this.state
+        const indexAnsweredOption = pageNumber - 1 
+        
+        // when the same button is clicked, the state will not get updated
+        if(selectedAnswer === userAnswers[indexAnsweredOption]) {
+            return
+        }
 
         this.setState(prevState => {
             let newUserAnswers = prevState.userAnswers
@@ -117,19 +135,32 @@ class GameView extends Component {
                 questionsAnswers, 
                 pageNumber, 
                 userAnswers, 
-                question, 
-                disabledNext, 
-                disabledPrev } = this.state
+                question,
+                disabledPrev,
+                showSubmit } = this.state
         const totalQuestions = Object.keys(questionsAnswers).length
         const userAnswerAtIndex = userAnswers[pageNumber - 1]
+        let button 
 
-        // if the data from the json file is not loaded/available, the loading-sign-text is shown
+        //show submit button on last page, otherwise show the forward button
+        if(showSubmit) {
+            button = <button id="submitBtn" onClick={this.onQuizEnd}>Submit</button>
+        }
+        else {
+            button = <button className="navBtn" onClick={this.onNextQuestionPage}>
+                        <IoIosArrowForward className="io-icon"/>
+                    </button>
+        }
+
+        // if the data from the json file is not loaded/available, 
+        // the loading-sign-text is shown, else the game will start
         if(questionsAnswers == null) {
             return <p>loading question {pageNumber} ...</p>
         }
+
         return (
             <div className="gameContainer">
-                <button onClick={this.onQuizEnd} id="getResultBtn">Test abschließen</button>
+                <button id="getResultBtn" onClick={this.onQuizEnd}>Test abschließen</button>
                 <div className="questionAnswersContainer">
                     <p className="question">{question}</p>
                     <div id="answerButtons">
@@ -152,12 +183,7 @@ class GameView extends Component {
                         <IoIosArrowBack className="io-icon"/>
                     </button>
                     <p id="questionNumber">{pageNumber}/{totalQuestions}</p>
-                    <button 
-                        className="navBtn" 
-                        onClick={this.onNextQuestionPage}
-                        disabled={disabledNext}>
-                        <IoIosArrowForward className="io-icon"/>
-                    </button>
+                    {button}
                 </div>
             </div>
         )
