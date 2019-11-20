@@ -3,6 +3,8 @@
 In dieser WebApp werden zehn Fragen gestellt. Je nach Anzahl der richtigen Antworten, wird die Hintergrundfarbe hinter der Ergebnis-Anzeige sowie der Kommentar zum Ergebnis geändert.
 Die Fragen und Antwortmöglichkeiten sind Placeholder und ergeben keinen Sinn.
 
+Framework: React
+
 ### `npm start`
 
 Runs the app in the development mode.<br />
